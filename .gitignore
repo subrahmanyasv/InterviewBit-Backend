@@ -1,8 +1,94 @@
-node_modules
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage reports
+coverage
+*.lcov
+
+# Dependency directories
+node_modules/
+jspm_packages/
+
+# Environment variables
 .env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-/uploads
-/logs
+# Build output
+dist/
+build/
+out/
+tmp/
+temp/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+.npmrc
+
+# Optional eslint cache
+.eslintcache
+
+# Optional stylelint cache
+.stylelintcache
+
+# Parcel / Next.js / Nuxt / Remix builds
+.cache/
+.next/
+.nuxt/
+.remix/
+.vercel/
+.serverless/
+.netlify/
+
+# VS Code settings
+.vscode/
+.history/
+.idea/
+
+# macOS and system files
 .DS_Store
-npm-debug.log
+Thumbs.db
+
+# PM2 logs and dumps
+.pids
+dump.rdb
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# Local test databases
+*.sqlite
+*.db
+*.sqlite3
+
+# Redis / Mongo dumps
+dump.rdb
+*.tgz
+*.tar.gz
+
+# Temporary uploads
+uploads/
+*.tmp
+*.temp
+
+# Other common output
+coverage-final.json
+nyc_output/
