@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 
 import { corsOptions } from './src/Config/cors.config.js';
 import { dbConnection } from './src/Config/database.config.js';
+import logger from './src/Config/logger.config.js';
+import { requestLogger} from './src/Middlewares/requestLogger.js';
 dotenv.config();
 
 const port: number = parseInt(process.env.PORT || '3000');
@@ -11,7 +13,7 @@ const app: Express = express();
 
 const initializeApp = async () => {
     try {
-        console.log("Starting the application...");
+        logger.info("Starting the application...");
 
         //Connect to Database
         await dbConnection.connect();
@@ -39,19 +41,19 @@ const initializeApp = async () => {
 
         //Start the application
         const server = app.listen(port, () => {
-            console.log(`Server is running at http://localhost:${port}`);
+            logger.info(`Server is running at http://localhost:${port}`);
         });
 
 
         server.on('error', (error: Error) => {
-            console.error('Server error:', error.message);
+            logger.error('Server error:', error.message);
             process.exit(1);
         })
 
         const gracefulShutdown = async (signal: string) => {
-            console.log(`Received ${signal}. Shutting down gracefully...`);
+            logger.info(`Received ${signal}. Shutting down gracefully...`);
             server.close(async () => {
-                console.log('HTTP server closed.');
+                logger.info('HTTP server closed.');
 
                 try {
                     //TODO: Close database connections and any other here
@@ -59,7 +61,7 @@ const initializeApp = async () => {
 
                     process.exit(0);
                 } catch (error : unknown) {
-                    console.error('Error during shutdown:', (error as Error).message);
+                    logger.error('Error during shutdown:', (error as Error).message);
                     process.exit(1);
                 }
             });
@@ -68,9 +70,9 @@ const initializeApp = async () => {
         process.on('SIGINT', () => gracefulShutdown('SIGINT'));
         process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
-        console.log("Application started successfully.");
+        logger.info("Application started successfully.");
     } catch (error : unknown) {
-        console.error("Error during application initialization:", (error as Error).message);
+        logger.error("Error during application initialization:", (error as Error).message);
         process.exit(1);
     }
 
