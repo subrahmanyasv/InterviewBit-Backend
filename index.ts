@@ -2,18 +2,19 @@ import express, { Express, Request, Response } from 'express';
 import cors, { CorsOptions } from 'cors';
 import dotenv from 'dotenv';
 
-import { corsOptions } from './src/Config/configuration.js';
+import { corsOptions } from './src/Config/cors.config.js';
+import { dbConnection } from './src/Config/database.config.js';
 dotenv.config();
 
 const port: number = parseInt(process.env.PORT || '3000');
 const app: Express = express();
 
-const initializeApp = () => {
+const initializeApp = async () => {
     try {
         console.log("Starting the application...");
 
-        //TODO:  Connect to Database
-
+        //Connect to Database
+        await dbConnection.connect();
 
         //Initialize express Middlewares
         app.use(express.urlencoded({ extended: true }));
@@ -53,7 +54,8 @@ const initializeApp = () => {
                 console.log('HTTP server closed.');
 
                 try {
-                    //TODO: Close database connections and any other here.
+                    //TODO: Close database connections and any other here
+                    await dbConnection.disconnect();
 
                     process.exit(0);
                 } catch (error : unknown) {
@@ -73,6 +75,5 @@ const initializeApp = () => {
     }
 
 }
-
 
 initializeApp();
