@@ -2,10 +2,11 @@ import express, { Express, Request, Response } from 'express';
 import cors, { CorsOptions } from 'cors';
 import dotenv from 'dotenv';
 
-import { corsOptions } from './src/Config/cors.config.js';
-import { dbConnection } from './src/Config/database.config.js';
-import logger from './src/Config/logger.config.js';
-import { requestLogger} from './src/Middlewares/requestLogger.js';
+import { corsOptions } from './Config/cors.config.js';
+import { dbConnection } from './Config/database.config.js';
+import logger from './Config/logger.config.js';
+import { requestLogger} from './Middlewares/requestLogger.js';
+import { errorHandler } from './Middlewares/errorHandler.js';
 dotenv.config();
 
 const port: number = parseInt(process.env.PORT || '3000');
@@ -30,6 +31,9 @@ const initializeApp = async () => {
             res.setHeader('X-XSS-Protection', '1; mode=block');
             next();
         });
+        
+        //Initialize custom middlewares
+        app.use(requestLogger);
 
         //TODO: Define your routes here
 
@@ -37,8 +41,10 @@ const initializeApp = async () => {
         app.use('/test', (req: Request, res: Response) => {
             res.json({ message: 'API is working' });
         })
-        
 
+        //Global Error Handler
+        app.use(errorHandler);
+        
         //Start the application
         const server = app.listen(port, () => {
             logger.info(`Server is running at http://localhost:${port}`);
@@ -53,7 +59,7 @@ const initializeApp = async () => {
         const gracefulShutdown = async (signal: string) => {
             logger.info(`Received ${signal}. Shutting down gracefully...`);
             server.close(async () => {
-                logger.info('HTTP server closed.');
+                logger.warn('HTTP server closed.');
 
                 try {
                     //TODO: Close database connections and any other here

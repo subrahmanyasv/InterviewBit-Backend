@@ -29,7 +29,7 @@ export class NotFoundError extends AppError {
 }
 
 export class UnauthorizedError extends AppError {
-    constructor(message: string) {
+    constructor(message: string = 'Unauthorized') {
         super(message, 401);
     }
 }
