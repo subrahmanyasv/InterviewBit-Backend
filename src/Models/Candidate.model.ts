@@ -5,7 +5,7 @@ export interface Candidate extends Document {
     interview_id: Schema.Types.ObjectId;
     full_name: string;
     phone_number: string;
-    emial: string;
+    email: string;
     access_link_token: string;
     status: interviewStatus;
     final_score: number;
@@ -30,7 +30,7 @@ const CandidateSchema = new Schema<Candidate>({
         required: [true, 'Phone number is required'],
         trim: true,
     },
-    emial: {
+    email: {
         type: String,
         required: [true, 'Email is required'],
         trim: true,

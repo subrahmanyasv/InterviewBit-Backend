@@ -1,6 +1,7 @@
 import { Schema, model , Document } from 'mongoose';
 
 export interface Interviewer extends Document {
+    _id: Schema.Types.ObjectId;
     full_name : string;
     email: string;
     password_hash : string;
