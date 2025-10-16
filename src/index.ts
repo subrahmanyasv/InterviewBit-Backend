@@ -1,5 +1,6 @@
 import express, { Express, Request, Response } from 'express';
 import cors, { CorsOptions } from 'cors';
+import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
 
 import { corsOptions } from './Config/cors.config.js';
@@ -7,6 +8,7 @@ import { dbConnection } from './Config/database.config.js';
 import logger from './Config/logger.config.js';
 import { requestLogger} from './Middlewares/requestLogger.js';
 import { errorHandler } from './Middlewares/errorHandler.js';
+import authRouter from "./Api/Routes/auth.routes.js";
 dotenv.config();
 
 const port: number = parseInt(process.env.PORT || '3000');
@@ -23,6 +25,7 @@ const initializeApp = async () => {
         app.use(express.urlencoded({ extended: true }));
         app.use(express.json());
         app.use(cors(corsOptions));
+        app.use(cookieParser());
 
         //Basic security headers
         app.use((req, res, next) => {
@@ -36,6 +39,7 @@ const initializeApp = async () => {
         app.use(requestLogger);
 
         //TODO: Define your routes here
+        app.use("/api/auth", authRouter);
 
 
         app.use('/test', (req: Request, res: Response) => {

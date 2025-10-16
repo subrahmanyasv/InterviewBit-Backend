@@ -1,4 +1,4 @@
-import { mongo, Mongoose } from 'mongoose';
+import { mongo, Mongoose, Schema, Types } from 'mongoose';
 import z from 'zod';
 import mongoose from 'mongoose';
 
@@ -21,7 +21,7 @@ export type loginType = z.infer<typeof loginSchema>['body'];
 export type signupType = z.infer<typeof signupSchema>['body'];
 
 export interface tokenPayload {
-    _id: mongoose.Types.ObjectId;
+    _id: Schema.Types.ObjectId;
     email?: string;
     full_name?: string;
 }

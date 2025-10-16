@@ -8,6 +8,6 @@ const router = express.Router();
 router.post('/register', validateRequest(signupSchema as unknown as AnyZodObject), authController.register);
 router.post('/login', validateRequest(loginSchema as unknown as AnyZodObject), authController.login);
 router.post('/refresh-token', authController.refreshToken);
-router.post('/logout', authController.logout);
+router.get('/logout', authController.logout);
 
 export default router;

@@ -4,6 +4,7 @@ import { CORSError } from "../Utils/ErrorClass.js";
 // List of allowed origins for CORS
 const allowedOrigins : string[] = [
     'http://localhost:5713',
+    '*'
 ]
 
 /*
@@ -18,7 +19,7 @@ Dependencies:
 */
 export const corsOptions : CorsOptions = {
     origin: (origin, callback) => {
-        if(origin && allowedOrigins.includes(origin)){
+        if(!origin || allowedOrigins.includes(origin)){
             callback(null, true);
         } else {
             callback(new CORSError());
