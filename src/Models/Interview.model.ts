@@ -3,6 +3,7 @@ import { interviewStatus } from '../Utils/types.js';
 
 
 export interface Interview extends Document {
+    interviewId: Schema.Types.ObjectId;
     interviererId : Schema.Types.ObjectId;
     title: string;
     domain: string;
