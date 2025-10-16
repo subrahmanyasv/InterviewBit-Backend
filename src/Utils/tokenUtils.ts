@@ -38,9 +38,9 @@ class TokenUtils {
         }
     }
 
-    public getDataFromToken = (refreshToken: string) : tokenPayload | null => {
+    public getDataFromToken = (accessToken: string) : tokenPayload | null => {
         try {
-            const decoded = jwt.verify(refreshToken, this.refreshTokenKey) as tokenPayload;
+            const decoded = jwt.verify(accessToken, this.accessTokenKey) as tokenPayload;
             return decoded ? decoded : null;
         }catch( error : unknown  ){
             throw new UnauthorizedError('Invalid refresh token');
