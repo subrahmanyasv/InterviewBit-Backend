@@ -1,6 +1,29 @@
 import { z } from 'zod';
 import { interviewStatus } from '../Utils/types.js';
 
+/**
+ * @file createInterviewSchema.ts
+ * @description
+ * Defines the Zod schema and TypeScript type for validating incoming requests to create a new interview.
+ * Ensures that all required fields are present and valid before reaching the controller logic.
+ *
+ * @example
+ * Valid Request Body:
+ * {
+ *   "title": "Frontend Developer Interview",
+ *   "domain": "Web Development",
+ *   "status": "Scheduled",
+ *   "scheduled_start_time": "2025-10-20T10:30:00Z",
+ *   "buffer_time_minutes": 15,
+ *   "num_questions": 5,
+ *   "candidate_emails": ["candidate@example.com", "test@example.com"]
+ * }
+ *
+ * @exports createInterviewSchema
+ * @exports ICreateInterview
+ */
+
+
 export const createInterviewSchema = z.object({
   body: z.object({
     title: z.string().min(1, 'Title is required').max(100),
