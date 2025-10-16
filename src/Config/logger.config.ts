@@ -1,39 +1,50 @@
 import { createLogger, format, transports } from 'winston';
 
-/*
-Description: The file configures and exports a Winston logger instance for logging within the application.
-
-Congiguration Details:
- - Log levels: The logger is set to 'info' level in production and 'debug' level in development.
- - Formats: Colored + Console output for development and JSON format for production.
- - Transports: Logs are sent to the console and also written to files (error.log for errors and combined.log for all logs).
- - Error Handling: The logger is configured to handle exceptions and not exit on error.
-
-Dependencies: Winston
-*/
-
-
-
 const { combine, timestamp, printf, colorize, errors, json } = format;
 
-const consoleFormat = printf(({level , message, timestamp, stack}) => {
-    return `${timestamp} ${level}: ${stack || message}`;
-})
+/**
+ * @description Defines the format for console logs during development.
+ * It includes colorization for better readability in the terminal.
+ */
+const developmentConsoleFormat = combine(
+    colorize({ all: true }),
+    timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+    errors({ stack: true }),
+    printf(({ level, message, timestamp, stack }) => {
+        return `${timestamp} ${level}: ${stack || message}`;
+    })
+);
 
+/**
+ * @description Defines the structured JSON format for file logs and production console logs.
+ * This format is machine-readable and does not contain any color codes.
+ */
+const productionLogFormat = combine(
+    timestamp(),
+    errors({ stack: true }),
+    json()
+);
+
+/**
+ * Creates and configures the Winston logger instance.
+ * It uses different formats for console and file transports based on the environment.
+ */
 const logger = createLogger({
-    level : process.env.NODE_ENV === 'production' ? 'info' : 'debug',
-    format: combine(
-        timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
-        errors({ stack: true }), 
-        process.env.NODE_ENV === 'production' ? json() : colorize({ all: true }),
-        process.env.NODE_ENV === 'production' ? json() : consoleFormat
-    ),
+    level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+    format: process.env.NODE_ENV === 'production' ? productionLogFormat : developmentConsoleFormat,
     transports: [
         new transports.Console(),
-        new transports.File({ filename: 'logs/error.log', level: 'error' }),
-        new transports.File({ filename: 'logs/combined.log' })
+        new transports.File({
+            filename: 'logs/error.log',
+            level: 'error',
+            format: productionLogFormat, 
+        }),
+        new transports.File({
+            filename: 'logs/combined.log',
+            format: productionLogFormat, 
+        }),
     ],
-    exitOnError: false, 
-})
+    exitOnError: false,
+});
 
 export default logger;
