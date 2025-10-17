@@ -9,5 +9,5 @@ export enum interviewStatus {
 }
 
 export interface customRequest extends Request {
-    interviewer ?: tokenPayload
+    interviewer : tokenPayload
 }

@@ -1,5 +1,8 @@
 import { z } from 'zod';
 import { interviewStatus } from '../Utils/types.js';
+import { Interview } from "../Models/Interview.model.js";
+import { Candidate } from "../Models/Candidate.model.js";
+import { Transcript } from '../Models/Transcripts.model.js';
 
 /**
  * @file createInterviewSchema.ts
@@ -58,3 +61,13 @@ export const createInterviewSchema = z.object({
 });
 
 export type ICreateInterview = z.infer<typeof createInterviewSchema>['body'];
+
+export interface IGetInterview{
+  interview: Interview,
+  candidates: Candidate[]
+}
+
+export interface IGetCandidateTranscript{
+  candidate: Candidate,
+  transcripts: Transcript[]
+}

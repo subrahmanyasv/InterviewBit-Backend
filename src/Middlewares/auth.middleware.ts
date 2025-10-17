@@ -1,9 +1,8 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction, RequestHandler } from "express";
 import { BadRequestError, UnauthorizedError } from "../Utils/ErrorClass.js";
 import { AnyZodObject } from "zod/v3";
 import  tokenUtils  from "../Utils/tokenUtils.js";
 import { tokenPayload } from "../Schemas/auth.schema.js";
-import { customRequest } from "../Utils/types.js";
 
 
 export const validateRequest = (schema : AnyZodObject) => 
@@ -21,7 +20,7 @@ export const validateRequest = (schema : AnyZodObject) =>
     }
 
 
-export const authenticate = async (req: customRequest, res: Response , next: NextFunction) => {
+export const authenticate: RequestHandler = async (req: Request, res: Response , next: NextFunction) => {
     try{
         const authHeader = req.headers.authorization;
 

@@ -4,7 +4,7 @@ import { interviewStatus } from '../Utils/types.js';
 
 export interface Interview extends Document {
     interviewId: Schema.Types.ObjectId;
-    interviererId : Schema.Types.ObjectId;
+    interviewerId : Schema.Types.ObjectId;
     title: string;
     domain: string;
     status: interviewStatus;
@@ -15,7 +15,7 @@ export interface Interview extends Document {
 }
 
 const InterviewSchema = new Schema<Interview>({
-    interviererId: {
+    interviewerId: {
         type: Schema.Types.ObjectId,
         ref: 'Interviewer',
         required: [true, 'Interviewer ID is required'],
