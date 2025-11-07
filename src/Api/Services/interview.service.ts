@@ -54,7 +54,7 @@ class InterviewService {
                 scheduled_start_time,
                 buffer_time_minutes,
                 num_questions,
-                interviererId: interviewerId
+                interviewerId: interviewerId
             }], { session });
 
             if (!newInterviews) throw new Error("Interview not created");
@@ -89,7 +89,7 @@ class InterviewService {
     */
     public async getAllInterviwsService(interviewerId: Schema.Types.ObjectId | String): Promise<Interview[]> {
         try {
-            const interviews: Interview[] = await InterviewModel.find({ interviererId: interviewerId });
+            const interviews: Interview[] = await InterviewModel.find({ interviewerId: interviewerId });
             return interviews;
         } catch (error: unknown) {
             throw error;

@@ -8,7 +8,9 @@ import { dbConnection } from './Config/database.config.js';
 import logger from './Config/logger.config.js';
 import { requestLogger} from './Middlewares/requestLogger.js';
 import { errorHandler } from './Middlewares/errorHandler.js';
+import { authenticate } from './Middlewares/auth.middleware.js';
 import authRouter from "./Api/Routes/auth.routes.js";
+import interviewRouter from "./Api/Routes/interview.routes.js";
 dotenv.config();
 
 const port: number = parseInt(process.env.PORT || '3000');
@@ -38,8 +40,11 @@ const initializeApp = async () => {
         //Initialize custom middlewares
         app.use(requestLogger);
 
-        //TODO: Define your routes here
+        // Custom route handlers
         app.use("/api/auth", authRouter);
+        app.use(authenticate);              //Custom middleware to authenticate all routes below this line
+        app.use("/api/interviews", interviewRouter);
+        
 
 
         app.use('/test', (req: Request, res: Response) => {
@@ -81,8 +86,13 @@ const initializeApp = async () => {
         process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
         logger.info("Application started successfully.");
-    } catch (error : unknown) {
-        logger.error("Error during application initialization:", (error as Error).message);
+    } catch (error: unknown) {
+        // This safely checks the error type before accessing .message
+        if (error instanceof Error) {
+            logger.error(`Error during application initialization: ${error.message}`);
+        } else {
+            logger.error('An unknown error occurred during application initialization:', error);
+        }
         process.exit(1);
     }
 

@@ -22,12 +22,10 @@ const CandidateSchema = new Schema<Candidate>({
     },
     full_name: {
         type: String,
-        required: [true, 'Full name is required'],
         trim: true,
     },
     phone_number: {
         type: String,
-        required: [true, 'Phone number is required'],
         trim: true,
     },
     email: {

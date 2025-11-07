@@ -24,7 +24,7 @@ export const errorHandler = (
     }else {     // For unexpected errors, log the error and send a generic 500 response.
         res.status(500).json({
             status: 'error',
-            message: 'Internal Server Error',
+            message: `Internal Server Error: ${err.message}`,
         });
     }
 }

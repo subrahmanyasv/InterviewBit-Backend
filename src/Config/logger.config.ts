@@ -37,11 +37,9 @@ const logger = createLogger({
         new transports.File({
             filename: 'logs/error.log',
             level: 'error',
-            format: productionLogFormat, 
         }),
         new transports.File({
             filename: 'logs/combined.log',
-            format: productionLogFormat, 
         }),
     ],
     exitOnError: false,
