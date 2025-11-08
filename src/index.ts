@@ -1,4 +1,5 @@
 import express, { Express, Request, Response } from 'express';
+import { WebSocketServer } from 'ws';
 import cors, { CorsOptions } from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
@@ -12,6 +13,9 @@ import { errorHandler } from './Middlewares/errorHandler.js';
 import { authenticate } from './Middlewares/auth.middleware.js';
 import authRouter from "./Api/Routes/auth.routes.js";
 import interviewRouter from "./Api/Routes/interview.routes.js";
+
+import  WebSocketService  from './websockets/socket.service.js';
+import webSocketService from './websockets/socket.service.js';
 
 const port: number = parseInt(process.env.PORT || '3000');
 const app: Express = express();
@@ -59,6 +63,8 @@ const initializeApp = async () => {
             logger.info(`Server is running at http://localhost:${port}`);
         });
 
+        const wss = new WebSocketServer({ server });
+        webSocketService.initialize(wss);
 
         server.on('error', (error: Error) => {
             logger.error('Server error:', error.message);
@@ -67,6 +73,7 @@ const initializeApp = async () => {
 
         const gracefulShutdown = async (signal: string) => {
             logger.info(`Received ${signal}. Shutting down gracefully...`);
+            WebSocketService.shutdown();
             server.close(async () => {
                 logger.warn('HTTP server closed.');
 

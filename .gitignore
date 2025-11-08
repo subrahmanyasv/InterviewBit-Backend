@@ -92,3 +92,8 @@ uploads/
 # Other common output
 coverage-final.json
 nyc_output/
+
+
+
+seed/
+scripts/
