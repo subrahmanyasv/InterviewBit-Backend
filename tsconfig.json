@@ -10,6 +10,33 @@
     "strict": true,
     "skipLibCheck": true
   },
-  "include": ["src/**/*","**/*.ts", "types"],
-  "exclude": ["node_modules"]
+  
+  // FIX 1: Make your 'include' and 'exclude' specific
+  "include": [
+    "src/**/*",
+    "types/**/*" 
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "logs"
+  ],
+
+  // FIX 2: Add this block to control 'ts-node' directly
+  "ts-node": {
+    // This tells ts-node to use the ESM loader
+    "esm": true,
+
+    // This is the most important part.
+    // It makes nodemon startup *much* faster and more stable by not
+    // doing full type-checking on every restart.
+    "transpileOnly": true,
+
+    // Explicitly tell ts-node's file watcher to ignore these
+    "ignore": [
+      "node_modules",
+      "dist",
+      "logs"
+    ]
+  }
 }

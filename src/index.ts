@@ -2,16 +2,16 @@ import express, { Express, Request, Response } from 'express';
 import cors, { CorsOptions } from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from 'dotenv';
+dotenv.config();
 
 import { corsOptions } from './Config/cors.config.js';
 import { dbConnection } from './Config/database.config.js';
-import logger from './Config/logger.config.js';
+import logger from './Config/logger.config.js'
 import { requestLogger} from './Middlewares/requestLogger.js';
 import { errorHandler } from './Middlewares/errorHandler.js';
 import { authenticate } from './Middlewares/auth.middleware.js';
 import authRouter from "./Api/Routes/auth.routes.js";
 import interviewRouter from "./Api/Routes/interview.routes.js";
-dotenv.config();
 
 const port: number = parseInt(process.env.PORT || '3000');
 const app: Express = express();
@@ -89,9 +89,10 @@ const initializeApp = async () => {
     } catch (error: unknown) {
         // This safely checks the error type before accessing .message
         if (error instanceof Error) {
-            logger.error(`Error during application initialization: ${error.message}`);
+            // logger.error(`Error during application initialization: ${error.message}`);
+            console.log("Error occured during application initialization: ", error.message);
         } else {
-            logger.error('An unknown error occurred during application initialization:', error);
+            console.log(error);
         }
         process.exit(1);
     }
