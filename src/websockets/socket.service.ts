@@ -9,16 +9,64 @@ import { TranscriptModel } from '../Models/Transcripts.model.js';
 import  interviewService  from '../Api/Services/interview.service.js';
 import { tokenPayload } from '../Schemas/auth.schema.js';
 
+/*
+@interface ExtWebSocket
+@description: Extends the base WebSocket interface from the 'ws' library.
+This allows us to attach custom state properties to each client's connection,
+such as their authenticated interviewerId, the interviewId they are
+subscribed to, and a flag for heartbeat checks (isAlive).
+*/
 export interface ExtWebSocket extends WebSocket {
     interviewerId?: string;
     interviewId?: string;
     isAlive: boolean; 
 }
 
+/*
+@class WebSocketService
+Description: This class manages all WebSocket connections for the application,
+providing real-time updates to interviewers monitoring their dashboards. It
+handles connection authentication, manages "rooms" based on interviewId to
+broadcast events to the correct clients, and processes incoming messages
+from clients (e.g., requesting details for a specific candidate).
+
+Dependencies:
+    - ws: The core WebSocket library for server and client management.
+    - http (IncomingMessage): Used to read the initial HTTP upgrade request.
+    - url: Utility for parsing URL parameters (like token) from the connection request.
+    - logger.config.js: For logging service-level events and errors.
+    - tokenUtils.js: For decoding and-validating authentication tokens.
+    - DB models: InterviewModel, CandidateModel, TranscriptModel for fetching data.
+    - interview.service.js: Used to fetch specific data, like candidate transcripts.
+
+Methods:
+    - initialize(wssInstance: WebSocketServer): void
+    - shutdown(): void
+    - handleConnection(ws: ExtWebSocket, req: IncomingMessage): Promise<void>
+    - sendInitialDashboardData(ws: ExtWebSocket, interviewId: string): Promise<void>
+    - joinRoom(interviewId: string, ws: ExtWebSocket): void
+    - leaveRoom(interviewId: string, ws: ExtWebSocket): void
+    - setupSignalHandlers(ws: ExtWebSocket): void
+    - handleCandidateDetailsRequest(ws: ExtWebSocket, payload: any): Promise<void>
+*/
 class WebSocketService {
+    // The main WebSocketServer instance.
     private wss: WebSocketServer | null = null;
+    
+    // Manages "rooms". The key is the interviewId (string), and the value is a Set
+    // of all connected ExtWebSocket clients (interviewers) subscribed to that interview.
     private interviewRooms = new Map<string, Set<ExtWebSocket>>();
 
+    /*
+    @method initialize
+    @description: Initializes the WebSocket service by attaching it to an existing
+    WebSocketServer instance (usually created in the main server file). It binds
+    the 'connection' event listener, which delegates new connections to the
+    `handleConnection` method.
+
+    @params: wssInstance: WebSocketServer - The WebSocketServer instance to attach to.
+    @returns: void
+    */
     public initialize(wssInstance: WebSocketServer): void {
         this.wss = wssInstance;
 
@@ -28,6 +76,26 @@ class WebSocketService {
         logger.info('WebSocket Service initialized.');
     }
 
+    /*
+    @method handleConnection
+    @description: This private method is the core handler for all new WebSocket
+    connections. It performs authentication and authorization:
+    1.  Sets the `isAlive` flag for heartbeat checks.
+    2.  Parses the connection URL to get the `token` and `interviewId`.
+    3.  Closes the connection if parameters are missing.
+    4.  Validates the `token` using `tokenUtils`.
+    5.  Fetches the interview from the database.
+    6.  Authorizes the user by checking if the `interviewerId` from the token
+        matches the `interviewerId` on the interview document.
+    7.  If successful, it attaches `interviewerId` and `interviewId` to the `ws` object.
+    8.  Adds the client to the correct room using `joinRoom`.
+    9.  Sets up event listeners ('close', 'error', 'pong', 'message') using `setupSignalHandlers`.
+    10. Sends the initial dashboard data to the new client.
+
+    @params: ws: ExtWebSocket - The newly connected WebSocket client.
+    @params: req: IncomingMessage - The initial HTTP upgrade request.
+    @returns: Promise<void>
+    */
     private async handleConnection(ws: ExtWebSocket, req: IncomingMessage): Promise<void> {
         ws.isAlive = true;
 
@@ -79,6 +147,16 @@ class WebSocketService {
         }
     }
 
+    /*
+    @method shutdown
+    @description: Gracefully shuts down the WebSocket service. It iterates
+    over all connected clients, closes their connections with a 'Server shutting down'
+    message, and then closes the main `wss` instance. It also clears the
+    `interviewRooms` map.
+
+    @params: None
+    @returns: void
+    */
     public shutdown(): void {
         if (this.wss) {
             logger.info('Shutting down WebSocket service...');
@@ -95,6 +173,18 @@ class WebSocketService {
         }
     }
 
+    /*
+    @method sendInitialDashboardData
+    @description: Fetches and sends the initial state of the dashboard to a
+    newly connected client. It retrieves interview details, the full list of
+    candidates for that interview, and aggregates their progress (number of
+    answered questions) from the Transcripts collection. This data is
+    sent as a single 'dashboard:init' event.
+
+    @params: ws: ExtWebSocket - The client to send the data to.
+    @params: interviewId: string - The ID of the interview to fetch data for.
+    @returns: Promise<void>
+    */
     private async sendInitialDashboardData(ws: ExtWebSocket, interviewId: string): Promise<void> {
         try {
             const interview = await InterviewModel.findById(interviewId).lean();
@@ -147,6 +237,16 @@ class WebSocketService {
     }
 
     
+    /*
+    @method joinRoom
+    @description: Adds a client to an interview "room". The room is
+    represented by a Set of WebSockets stored in the `interviewRooms` Map
+    under the `interviewId` key. If the room doesn't exist, it is created.
+
+    @params: interviewId: string - The ID of the room to join.
+    @params: ws: ExtWebSocket - The client to add to the room.
+    @returns: void
+    */
     private joinRoom(interviewId: string, ws: ExtWebSocket): void {
         if (!this.interviewRooms.has(interviewId)) {
             this.interviewRooms.set(interviewId, new Set());
@@ -154,6 +254,17 @@ class WebSocketService {
         this.interviewRooms.get(interviewId)!.add(ws);
     }
 
+    /*
+    @method leaveRoom
+    @description: Removes a client from an interview "room". This is
+    typically called when a client disconnects. If the room becomes empty
+    after the client leaves, the room itself is deleted from the
+    `interviewRooms` Map to conserve memory.
+
+    @params: interviewId: string - The ID of the room to leave.
+    @params: ws: ExtWebSocket - The client to remove from the room.
+    @returns: void
+    */
     private leaveRoom(interviewId: string, ws: ExtWebSocket): void {
         const room = this.interviewRooms.get(interviewId);
         if (room) {
@@ -166,6 +277,20 @@ class WebSocketService {
     }
 
 
+    /*
+    @method setupSignalHandlers
+    @description: Attaches all necessary event listeners to a WebSocket
+    client's connection.
+    - 'close': Cleans up the connection by calling `leaveRoom`.
+    - 'error': Logs any WebSocket errors.
+    - 'pong': Responds to heartbeat checks, setting `isAlive` to true.
+    - 'message': Parses incoming JSON messages and routes them to the
+      appropriate handler (e.g., `handleCandidateDetailsRequest`) based
+      on the `message.event` property.
+
+    @params: ws: ExtWebSocket - The client to attach listeners to.
+    @returns: void
+    */
     private setupSignalHandlers(ws: ExtWebSocket): void {
         ws.on('close', (code, reason) => {
             if (ws.interviewId) {
@@ -208,6 +333,21 @@ class WebSocketService {
     }
 
 
+    /*
+    @method handleCandidateDetailsRequest
+    @description: Handles the 'request:candidate_details' event from a
+    client. It validates the payload and then securely calls
+    `interviewService.getCandidateTranscript` using the authenticated
+    `interviewId` and `interviewerId` stored on the `ws` object. This
+    prevents a client from requesting data they are not authorized for.
+    The resulting data is sent *only* to the requesting client via a
+    'response:candidate_details' event.
+
+    @params: ws: ExtWebSocket - The client that sent the request.
+    @params: payload: any - The parsed message payload, expected to
+                            contain a `candidateId`.
+    @returns: Promise<void>
+    */
     private async handleCandidateDetailsRequest(ws: ExtWebSocket, payload: any): Promise<void> {
         try {
             const candidateId = payload?.candidateId;
