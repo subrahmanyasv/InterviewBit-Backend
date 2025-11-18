@@ -1,5 +1,7 @@
 import { Request } from "express";
 import { tokenPayload } from "../Schemas/auth.schema.js";
+import { Candidate } from "../Models/Candidate.model.js";
+import { Interview } from "../Models/Interview.model.js";
 
 export enum interviewStatus {
     SCHEDULED= 'Scheduled',
@@ -10,4 +12,10 @@ export enum interviewStatus {
 
 export interface customRequest extends Request {
     interviewer : tokenPayload
+}
+
+export interface CandidateAuthRequest extends Request {
+    candidateToken: string;
+    candidate: Candidate;
+    interview: Interview;
 }
