@@ -15,7 +15,7 @@ export interface customRequest extends Request {
 }
 
 export interface CandidateAuthRequest extends Request {
-    candidateToken: string;
+    access_link_token: string;
     candidate: Candidate;
     interview: Interview;
 }
