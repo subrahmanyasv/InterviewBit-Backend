@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "outDir": "./dist",
     "rootDir": "./src",
     "esModuleInterop": true,
@@ -14,7 +14,7 @@
   // FIX 1: Make your 'include' and 'exclude' specific
   "include": [
     "src/**/*",
-    "types/**/*" 
+    "types/**/*",
   ],
   "exclude": [
     "node_modules",
