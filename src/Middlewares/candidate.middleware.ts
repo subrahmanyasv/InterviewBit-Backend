@@ -14,7 +14,7 @@ const calculateTimeRemaining = (startTime: Date, numQuestions: number, timePerQu
 
 export const authenticateCandidate: RequestHandler = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        const candidateToken = req.params.interviewToken as string;
+        const candidateToken = req.params.access_link_token as string;
         if(!candidateToken){
             throw new UnauthorizedError("Candidate token missing");
         }
@@ -25,7 +25,7 @@ export const authenticateCandidate: RequestHandler = async (req: Request, res: R
         }
 
         if(candidate.status === interviewStatus.COMPLETED){
-            res.status(200).json({
+            res.status(410).json({
                 message: "Interview already completed",
                 candidateDetails: candidate
             });
