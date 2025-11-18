@@ -11,6 +11,7 @@ export interface Interview extends Document {
     scheduled_start_time: Date;
     buffer_time_minutes: number;
     num_questions: number;
+    minutes_per_question: number;
     created_at: Date;
 }
 
@@ -46,6 +47,10 @@ const InterviewSchema = new Schema<Interview>({
     num_questions: {
         type: Number,
         required: [true, 'Number of questions is required'],
+    },
+    minutes_per_question:{
+        type: Number,
+        required: [true, 'Minutes per question is required'],
     },
     created_at: {
         type: Date,

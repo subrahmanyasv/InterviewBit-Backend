@@ -10,6 +10,7 @@ export interface Candidate extends Document {
     status: interviewStatus;
     final_score: number;
     ai_summary: string;
+    started_at: Date;
     completed_at: Date;
 }
 
@@ -53,6 +54,10 @@ const CandidateSchema = new Schema<Candidate>({
     ai_summary: {
         type: String,
         default: '',    
+    },
+    started_at:{
+        type: Date,
+        default: null,
     },
     completed_at: {
         type: Date,
