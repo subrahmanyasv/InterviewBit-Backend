@@ -1,14 +1,14 @@
-import { Schema, model , Document } from 'mongoose';
+import { Schema, model, Document } from 'mongoose';
 
+// Note: This interface is strictly for Mongoose's internal typings
 export interface Interviewer extends Document {
-    _id: Schema.Types.ObjectId;
-    full_name : string;
+    full_name: string;
     email: string;
-    password_hash : string;
+    password_hash: string;
     created_at: Date;
 }
 
-const InterviewerSchema = new Schema<Interviewer>( {
+const InterviewerSchema = new Schema<Interviewer>({
     full_name: {
         type: String,
         required: [true, 'Full name is required'],
@@ -31,6 +31,6 @@ const InterviewerSchema = new Schema<Interviewer>( {
         type: Date,
         default: Date.now,  
     }
-})
+});
 
 export const InterviewerModel = model<Interviewer>('Interviewer', InterviewerSchema);

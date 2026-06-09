@@ -1,27 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import authService from '../Services/auth.service.js';
+import { authService } from '../../Config/dependencies.js';
 import { loginType, signupType, Tokens } from '../../Schemas/auth.schema.js';
 import { UnauthorizedError } from '../../Utils/ErrorClass.js';
 
-/*
-@class AuthController
-Descripton: The class provides essential endpoints for registering a new interviewer, logging in an interviewer, and refreshing access tokens.
-
-Dependencies: 
-    - authService: The authentication service responsible for registering a new interviewer, logging in an interviewer, and refreshing access tokens.
-    - loginType, signupType, Tokens: Custom types for login and signup data, and access tokens.
-    - UnauthorizedError: Custom error class for unauthorized access.
-
-Methods: 
-    - register(req: Request, res: Response, next: NextFunction): Promise<void>
-    - login(req: Request, res: Response, next: NextFunction): Promise<void>
-    - refreshToken(req: Request, res: Response, next: NextFunction): Promise<void>
-    - logout(req: Request, res: Response, next: NextFunction): Promise<void>
-*/
-
-
 
 class AuthController {
+    constuctor() {}
     public async register(req: Request, res: Response, next: NextFunction) {
         try {
             const payload: signupType = req.body;
